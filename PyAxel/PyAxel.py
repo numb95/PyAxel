@@ -31,15 +31,15 @@ def version(ctx, param, value):
               help="Download a list of links")  # new added option
 @click.option('-n', '--num-connections', type=int, help="Specify maximum number of connections")
 @click.option('-N', '--no-proxy', is_flag=True, help="Just don't use any proxy server")
-@click.option('-o', '--output', help="Specify local output file") # , type=click.Path
+@click.option('-o', '--output', help="Specify local output file")  # TODO: type=click.Path
 @click.option('-q', '--quiet', is_flag=True, help="Leave stdout alone")
 @click.option('-s', '--max-speed', type=int, help="Specify maximum speed (bytes per second)")
-@click.option('-S', '--search', type=str, help="Search for mirrors and download from x servers")  # not sure about type
-@click.option('-U', '--user-agent', type=str, help="Set user agent")  # not sure about type
+@click.option('-S', '--search', type=str, help="Search for mirrors and download from x servers")  # TODO: not sure about type
+@click.option('-U', '--user-agent', type=str, help="Set user agent")  # TODO: not sure about type
 @click.option('-v', '--verbose', is_flag=True, help="More status information")
 @click.option('-V', '--version', is_flag=True, callback=version, expose_value=False, is_eager=True,
               help="Version information")
-@click.argument('url', required=False)  # multiple=True,
+@click.argument('url', required=False)  # TODO: multiple=True,
 def generate(alternate, header, from_list, num_connections, no_proxy, output, quiet, max_speed, search, user_agent,
              verbose, url):
     """
@@ -59,24 +59,24 @@ def generate(alternate, header, from_list, num_connections, no_proxy, output, qu
     if url:
         for item in url:
             cmd += item + ' '
+        execute(cmd)
     # Download for a list of urls
     if from_list:
         for item in from_list:
             file_generic = item.open()
-            write_list = file_list = file_generic.read().split('\n')
+            file_list = file_generic.read().split('\n')
+            write_list = list(file_list)
             for url in file_list:
                 cmd += url
-                # execute(cmd)
-                click.echo(url)
+                execute(cmd)
                 write_list.remove(url)
-            click.echo(write_list)
-            click.echo(file_list)
             file_generic.writelines(write_list)
             file_generic.flush()
+    # TODO: return help in no arguments
 
 def execute(cmd):
     """
-    Executing generated axel command
+    Executing generated axel commands
 
     :param cmd: an axel command to run
     :return:
@@ -88,7 +88,7 @@ def execute(cmd):
         except KeyboardInterrupt:
             sys.stdout.flush()
             print ('\nInterrupted by user.\nyou can continue it later.')
-            exit()
+            exit()  # TODO: here before saving file application is closed
         if out == '' and proc.poll() is not None:
             print ('\nDownloaded the link successfully')
         if out != '' and out is str:
