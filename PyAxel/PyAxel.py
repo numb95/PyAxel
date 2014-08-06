@@ -13,7 +13,9 @@ __version__ = '0.1'
 # import the packages
 import sys
 import subprocess
+import urllib2
 
+import os
 import click
 
 
@@ -34,7 +36,8 @@ def version(ctx, param, value):
 @click.option('-o', '--output', help="Specify local output file")  # TODO: type=click.Path
 @click.option('-q', '--quiet', is_flag=True, help="Leave stdout alone")
 @click.option('-s', '--max-speed', type=int, help="Specify maximum speed (bytes per second)")
-@click.option('-S', '--search', type=str, help="Search for mirrors and download from x servers")  # TODO: not sure about type
+@click.option('-S', '--search', type=str,
+              help="Search for mirrors and download from x servers")  # TODO: not sure about type
 @click.option('-U', '--user-agent', type=str, help="Set user agent")  # TODO: not sure about type
 @click.option('-v', '--verbose', is_flag=True, help="More status information")
 @click.option('-V', '--version', is_flag=True, callback=version, expose_value=False, is_eager=True,
@@ -57,9 +60,18 @@ def generate(alternate, header, from_list, num_connections, no_proxy, output, qu
     if user_agent: cmd += '-U ' + user_agent + ' '
     if verbose: cmd += '-v '
     if url:
-        for item in url:
-            cmd += item + ' '
-        execute(cmd)
+        # for item in url:
+        if not os.path.isfile(urllib2.unquote(url.split('/')[-1])):
+            cmd += url + ' '
+            click.echo('=====================================================')
+            click.echo(url)
+            click.echo('=====================================================')
+            execute(cmd)
+        else:
+            click.echo(urllib2.unquote(url.split('/')[-1]))
+            click.echo('The file "%s" exists' % unicode(urllib2.unquote(url.split('/')[-1])) +
+                       ' in the downloading directory.\nif you are sure this is something else,' +
+                       ' please download it to somewrhere else or move the existing file')
     # Download for a list of urls
     if from_list:
         for item in from_list:
@@ -67,12 +79,22 @@ def generate(alternate, header, from_list, num_connections, no_proxy, output, qu
             file_list = file_generic.read().split('\n')
             write_list = list(file_list)
             for url in file_list:
-                cmd += url
-                execute(cmd)
+                if not os.path.isfile(urllib2.unquote(url.split('/')[-1])):
+                    cmd += url
+                    click.echo('=====================================================')
+                    click.echo(url)
+                    click.echo('=====================================================')
+                    execute(cmd)
+                else:
+                    click.echo(urllib2.unquote(url.split('/')[-1]))
+                    click.echo('The file "%s" exists' % unicode(urllib2.unquote(url.split('/')[-1])) +
+                               ' in the downloading directory.\nif you are sure this is something else,' +
+                               ' please download it to somewrhere else or move the existing file')
                 write_list.remove(url)
             file_generic.writelines(write_list)
             file_generic.flush()
-    # TODO: return help in no arguments
+            # TODO: return help in no arguments
+
 
 def execute(cmd):
     """
@@ -96,3 +118,4 @@ def execute(cmd):
             sys.stdout.flush()
         else:
             break
+
