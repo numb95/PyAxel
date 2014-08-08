@@ -1,7 +1,7 @@
 PyAxel
 ======
 
-An improvement of Axel download accelerator
+PyAxel is a Download manager powered by Axel download accelerator.
 
 *You should notice that PyAxel is written in python and it's just using axel as a dependency*
 
