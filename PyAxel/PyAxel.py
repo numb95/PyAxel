@@ -28,12 +28,12 @@ def version(ctx, param, value):
 
 @click.command()
 @click.option('-a', '--alternate', is_flag=True, help="Alternate progress indicator")
-@click.option('-H', '--header', type=click.STRING, help="Add heaser string")
+@click.option('-H', '--header', type=click.STRING, help="Add header string")
 @click.option('-l', '--from-list', type=click.File('rw+'), multiple=True,
               help="Download a list of links")  # new added option
 @click.option('-n', '--num-connections', type=int, help="Specify maximum number of connections")
 @click.option('-N', '--no-proxy', is_flag=True, help="Just don't use any proxy server")
-@click.option('-o', '--output', help="Specify local output file")  # TODO: type=click.Path
+@click.option('-o', '--output', type=click.STRING, help="Specify local output file")
 @click.option('-p', '--password', required=False, help="HTTP password")
 @click.option('-q', '--quiet', is_flag=True, help="Leave stdout alone")
 @click.option('-s', '--max-speed', type=int, help="Specify maximum speed (bytes per second)")
@@ -64,7 +64,7 @@ def generate(alternate, header, from_list, num_connections, no_proxy, output, qu
     if url:
         for item in url:
             if username and password:
-                item = item.partition('://')
+                item = list(item.partition('://'))
                 item.insert(2, username + ':' + password + '@')
                 item = ''.join(item)
             elif username or password:
@@ -89,7 +89,7 @@ def generate(alternate, header, from_list, num_connections, no_proxy, output, qu
             write_list = list(file_list)
             for url in file_list:
                 if username and password:
-                    url = url.partition('://')
+                    url = list(url.partition('://'))
                     url.insert(2, username + ':' + password + '@')
                     url = ''.join(url)
                 elif username or password:
